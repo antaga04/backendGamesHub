@@ -1,4 +1,4 @@
-const { verifytoken } = require('../config/jwt');
+const { verifytoken } = require('../utils/jwt');
 
 const hasValidAuthJwt = (req, res, next) => {
   try {
@@ -7,6 +7,7 @@ const hasValidAuthJwt = (req, res, next) => {
     const payload = verifytoken(token);
 
     req.user = payload;
+    console.log(payload);
 
     next();
   } catch (err) {

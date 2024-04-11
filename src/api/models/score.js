@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
-const scoreSchema = mongoose.Schema(
+const scoreSchema = new mongoose.Schema(
   {
-    game: { type: String, require: true },
     score: { type: String, require: true },
     user_id: { type: mongoose.Types.ObjectId, require: true },
+    game_id: { type: mongoose.Types.ObjectId, require: true },
   },
   {
     timestamps: true,
@@ -12,4 +12,6 @@ const scoreSchema = mongoose.Schema(
   }
 );
 
-module.exports = scoreSchema;
+const Score = mongoose.model('Score', scoreSchema, 'Score');
+
+module.exports = Score;

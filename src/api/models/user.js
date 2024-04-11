@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { hashPassword } = require('../../config/password');
+const { hashPassword } = require('../../utils/password');
 
 const userSchema = new mongoose.Schema({
   nickname: { type: String, required: true },
@@ -7,10 +7,13 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   avatar: { type: String },
   scores: [{ type: mongoose.Types.ObjectId, ref: 'Score' }],
+  rol: { type: String, required: true, enum: ['user', 'admin'] },
 });
 
 userSchema.pre('save', async function () {
-  this.password = await hashPassword(newUser.password);
+  this.password = await hashPassword(this.password);
 });
 
-module.exports = userSchema;
+const User = mongoose.model('User', userSchema, 'User');
+
+module.exports = User;
