@@ -9,6 +9,16 @@ const getAllGames = async (req, res) => {
   }
 };
 
+const getGameById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const game = await Game.findById(id);
+    res.status(200).json({ data: game });
+  } catch (error) {
+    res.status(400).json({ error: 'Error getting Game by id' });
+  }
+};
+
 const createGame = async (req, res) => {
   try {
     const { name, difficulty, type } = req.body;
@@ -71,6 +81,7 @@ const deleteGame = async (req, res) => {
 
 module.exports = {
   getAllGames,
+  getGameById,
   createGame,
   updateGameById,
   deleteGame,

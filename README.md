@@ -50,20 +50,18 @@ const User = {
 
 | HTTP Request | Endpoint  | Description                   | Protected | Admin |
 | ------------ | --------- | ----------------------------- | --------- | ----- |
-| GET          | /games    | Todos los libros registrados. | No        | No    |
-| GET          | /games/id | Libro por su id.              | No        | No    |
-| POST         | /games    | Crear un nuevo libro.         | Sí        | Sí    |
-| PUT          | /games/id | Editar un libro.              | Sí        | Sí    |
-| DELETE       | /games/id | Borrar un libro.              | Sí        | Sí    |
+| GET          | /games    | Todos los juegos registrados. | No        | No    |
+| GET          | /games/id | Juego por su id.              | No        | No    |
+| POST         | /games    | Crear un nuevo juego.         | Sí        | Sí    |
+| PUT          | /games/id | Editar un juego.              | Sí        | Sí    |
+| DELETE       | /games/id | Borrar un juego.              | Sí        | Sí    |
 
 ### MODELO SCORES:
 
 | HTTP Request | Endpoint   | Description                   | Protected | Admin |
 | ------------ | ---------- | ----------------------------- | --------- | ----- |
 | GET          | /scores    | Todas las scores registrados. | No        | No    |
-| GET          | /scores/id | Review por su id.             | No        | No    |
 | POST         | /scores    | Crear una nueva review.       | Sí        | No    |
-| PUT          | /scores/id | Editar una review.            | Sí        | No    |
 | DELETE       | /scores/id | Borrar una review.            | Sí        | No    |
 
 ### MODELO USERS:
