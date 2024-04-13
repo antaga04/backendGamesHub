@@ -4,7 +4,7 @@
 
 API de puntuaciones y juegos. Continiene una lista de Games. También hay Scores asociadas a un User autenticado el la base de datos y a un Game.
 
-API_URL => https://magicbooks.onrender.com/api/
+API_URL => https://backendgameshub.onrender.com
 
 ## MODELOS
 
@@ -44,7 +44,9 @@ const User = {
 ## URLs:
 
 - https://localhost:8080/api
-- https://magicbooks.onrender.com/api
+- https://backendgameshub.onrender.com/api
+
+## Endpoints
 
 ### MODELO GAMES:
 
