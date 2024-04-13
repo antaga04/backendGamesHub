@@ -2,7 +2,10 @@ const Score = require('../../api/models/score');
 
 const getAllScores = async (req, res) => {
   try {
-    const scores = await Score.find();
+    const scores = await Score.find().populate([
+      { path: 'game_id' },
+      { path: 'user_id', select: 'nickname' },
+    ]);
     res.status(200).json({ data: scores });
   } catch (error) {
     res.status(400).json({ error: 'Error getting Score/s' });

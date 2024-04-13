@@ -7,11 +7,12 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   avatar: { type: String },
   scores: [{ type: mongoose.Types.ObjectId, ref: 'Score' }],
-  rol: { type: String, required: true, enum: ['user', 'admin'] },
+  rol: { type: String, enum: ['user', 'admin'] },
 });
 
 userSchema.pre('save', async function () {
   this.password = await hashPassword(this.password);
+  this.rol = 'user'
 });
 
 const User = mongoose.model('User', userSchema, 'User');
