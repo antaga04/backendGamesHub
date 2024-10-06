@@ -1,6 +1,8 @@
 const User = require('../../api/models/user');
-const { verifyPassword } = require('../../utils/password');
+const { verifyPassword, hashPassword } = require('../../utils/password');
 const { signToken } = require('../../utils/jwt');
+const { deleteCloudinaryImage } = require('../../utils/cloudinary');
+const { validateNickname, validateEmail } = require('../../utils/validation');
 
 const registerUser = async (req, res) => {
   try {
@@ -11,11 +13,16 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ error: 'User already exists' });
     }
 
+    const nicknameValidation = validateNickname(newUser.nickname);
+    if (!nicknameValidation.valid) {
+      return res.status(400).json({ error: nicknameValidation.message });
+    }
+
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
     if (!passwordRegex.test(newUser.password)) {
       return res.status(400).json({
         error:
-          'Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, and one digit',
+          'Password must be at least 6 characters long, contain at least one uppercase letter, one lowercase, and one digit',
       });
     }
 
@@ -55,34 +62,89 @@ const loginUser = async (req, res) => {
 };
 
 const updateUserAvatar = async (req, res) => {
-  const { path } = req.file;
-  const { id } = req.user;
+  const { path } = req.file; // The new avatar URL from Cloudinary
+  const { id } = req.user; // Assuming the user ID is coming from the auth middleware
 
-  await User.updateOne({ _id: id }, { avatar: path });
+  try {
+    // Find the user by ID
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
 
-  res.status(201).json({ data: path });
+    // Check if the user has an existing avatar
+    if (user.avatar) {
+      // Delete the old avatar from Cloudinary
+      await deleteCloudinaryImage(user.avatar);
+    }
+
+    // Update the user's avatar with the new one
+    user.avatar = path;
+    await user.save();
+
+    res.status(201).json({ data: path });
+  } catch (error) {
+    console.error('Error updating avatar:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 };
 
 const updateUser = async (req, res) => {
   try {
     const { id } = req.user;
-    const newUser = new User(req.body);
+    const updates = req.body;
 
     const oldUser = await User.findById(id);
-    newUser._id = id;
-
-    newUser.rol = 'user';
-
-    if (oldUser.rol === 'admin') {
-      newUser.rol = oldUser.rol;
+    if (!oldUser) {
+      return res.status(404).json({ error: 'User not found' });
     }
 
-    newUser.scores = oldUser.scores;
+    // Validate nickname
+    const nicknameValidation = validateNickname(updates.nickname);
+    if (!nicknameValidation.valid) {
+      return res.status(400).json({ error: nicknameValidation.message });
+    }
 
-    const user = await User.findByIdAndUpdate(id, newUser, { new: true });
+    // Validate email
+    const emailValidation = validateEmail(updates.email);
+    if (!emailValidation.valid) {
+      return res.status(400).json({ error: emailValidation.message });
+    }
+
+    // Only hash the password if it's being updated
+    console.log(updates.password);
+    
+    if (updates.password !== undefined) {
+      updates.password = await hashPassword(updates.password);
+    }
+
+    // Preserve old fields that should not be updated
+    updates.rol = oldUser.rol; // Keep the old role
+    updates.scores = oldUser.scores; // Keep the scores
+
+    // Update the user with the new data
+    const user = await User.findByIdAndUpdate(id, updates, { new: true });
+
     return res.status(200).json({ data: user });
   } catch (error) {
-    return res.status(400).json({ error: 'Error updating user' });
+    console.error('Error updating user:', error);
+    return res.status(500).json({ error: 'An unexpected error occurred while updating the user.' });
+  }
+};
+
+const getUser = async (req, res) => {
+  try {
+    const { id } = req.user;
+
+    const user = await User.findById(id).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json({ data: user });
+  } catch (error) {
+    res.status(400).json({ error: 'Error fetching user details' });
   }
 };
 
@@ -91,4 +153,5 @@ module.exports = {
   loginUser,
   updateUser,
   updateUserAvatar,
+  getUser,
 };
