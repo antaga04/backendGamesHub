@@ -30,7 +30,7 @@ const createGame = async (req, res) => {
       return res.status(400).json({ error: 'Game already exists' });
     }
 
-    const newGame = await new Game({
+    const newGame = new Game({
       name,
       difficulty,
       type,
@@ -86,3 +86,4 @@ module.exports = {
   updateGameById,
   deleteGame,
 };
+
