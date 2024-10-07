@@ -62,25 +62,20 @@ const loginUser = async (req, res) => {
 };
 
 const updateUserAvatar = async (req, res) => {
-  const { path } = req.file; // The new avatar URL from Cloudinary
-  const { id } = req.user; // Assuming the user ID is coming from the auth middleware
+  const { path } = req.file;
+  const { id } = req.user;
 
   try {
-    // Find the user by ID
     const user = await User.findById(id);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Check if the user has an existing avatar
     if (user.avatar) {
-      // Delete the old avatar from Cloudinary
       await deleteCloudinaryImage(user.avatar);
     }
 
-    // Update the user's avatar with the new one
-    user.avatar = path;
-    await user.save();
+    await User.findByIdAndUpdate(id, { avatar: path }, { new: true });
 
     res.status(201).json({ data: path });
   } catch (error) {
@@ -99,28 +94,24 @@ const updateUser = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Validate nickname
     const nicknameValidation = validateNickname(updates.nickname);
     if (!nicknameValidation.valid) {
       return res.status(400).json({ error: nicknameValidation.message });
     }
 
-    // Validate email
     const emailValidation = validateEmail(updates.email);
     if (!emailValidation.valid) {
       return res.status(400).json({ error: emailValidation.message });
     }
 
-    // Only hash the password if it's being updated
-    console.log(updates.password);
-    
     if (updates.password !== undefined) {
       updates.password = await hashPassword(updates.password);
+      console.log('inside', updates.password);
     }
 
     // Preserve old fields that should not be updated
-    updates.rol = oldUser.rol; // Keep the old role
-    updates.scores = oldUser.scores; // Keep the scores
+    updates.rol = oldUser.rol;
+    updates.scores = oldUser.scores;
 
     // Update the user with the new data
     const user = await User.findByIdAndUpdate(id, updates, { new: true });
