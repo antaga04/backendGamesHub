@@ -9,7 +9,7 @@ const mainRouter = require('./api/routes');
 const app = express();
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.CLIENT_URL, 
     methods: ['GET', 'PUT', 'POST', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -46,7 +46,7 @@ app.use((error, req, res, next) => {
   res.status(500).json({ data: 'Internal Server Error' });
 });
 
-const PORT = 8080;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`App corriendo en: http://localhost:${PORT}`);
 });
