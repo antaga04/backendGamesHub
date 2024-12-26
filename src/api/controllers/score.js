@@ -16,7 +16,7 @@ const createScore = async (req, res) => {
   try {
     const { score, user_id, game_id } = req.body;
 
-    const newScore = await new Score({
+    const newScore = new Score({
       score,
       user_id,
       game_id,

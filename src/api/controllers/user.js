@@ -6,26 +6,27 @@ const { validateNickname, validateEmail } = require('../../utils/validation');
 
 const registerUser = async (req, res) => {
   try {
-    const newUser = new User(req.body);
+    const { email, nickname, password } = req.body;
 
-    const userDuplicated = await User.findOne({ email: req.body.email });
+    const userDuplicated = await User.findOne({ email: email });
     if (userDuplicated) {
       return res.status(400).json({ error: 'User already exists' });
     }
 
-    const nicknameValidation = validateNickname(newUser.nickname);
+    const nicknameValidation = validateNickname(nickname);
     if (!nicknameValidation.valid) {
       return res.status(400).json({ error: nicknameValidation.message });
     }
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
-    if (!passwordRegex.test(newUser.password)) {
+    if (!passwordRegex.test(password)) {
       return res.status(400).json({
         error:
           'Password must be at least 6 characters long, contain at least one uppercase letter, one lowercase, and one digit',
       });
     }
 
+    const newUser = new User({ email, nickname, password });
     const user = await newUser.save();
 
     res.status(201).json({ data: user });
